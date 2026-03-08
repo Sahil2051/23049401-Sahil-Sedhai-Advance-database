@@ -1,0 +1,70 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="CinemaTicketSystem.SiteMaster" %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> - Cinema Ticket System</title>
+    <asp:PlaceHolder runat="server">
+        <%: Scripts.Render("~/bundles/modernizr") %>
+    </asp:PlaceHolder>
+    <webopt:bundlereference runat="server" path="~/Content/css" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+</head>
+<body>
+    <form runat="server">
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <asp:ScriptReference Name="MsAjaxBundle" />
+                <asp:ScriptReference Name="jquery" />
+                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                <asp:ScriptReference Name="MenuStandards.js" Assembly="System.Web" Path="~/Scripts/WebForms/MenuStandards.js" />
+                <asp:ScriptReference Name="GridView.js" Assembly="System.Web" Path="~/Scripts/WebForms/GridView.js" />
+                <asp:ScriptReference Name="DetailsView.js" Assembly="System.Web" Path="~/Scripts/WebForms/DetailsView.js" />
+                <asp:ScriptReference Name="TreeView.js" Assembly="System.Web" Path="~/Scripts/WebForms/TreeView.js" />
+                <asp:ScriptReference Name="WebParts.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebParts.js" />
+                <asp:ScriptReference Name="Focus.js" Assembly="System.Web" Path="~/Scripts/WebForms/Focus.js" />
+                <asp:ScriptReference Name="WebFormsBundle" />
+            </Scripts>
+        </asp:ScriptManager>
+
+        <div class="app-shell">
+            <aside class="sidebar">
+                <div class="brand">Cinema Admin</div>
+                <div class="brand-subtitle">Ticket Booking Suite</div>
+                <nav class="side-nav">
+                    <a runat="server" href="~/" class="side-link">Dashboard</a>
+                    <a runat="server" href="~/Users.aspx" class="side-link">Users</a>
+                    <a runat="server" href="~/Theaters.aspx" class="side-link">Theaters</a>
+                    <a runat="server" href="~/Halls.aspx" class="side-link">Halls</a>
+                    <a runat="server" href="~/Movies.aspx" class="side-link">Movies</a>
+                    <a runat="server" href="~/Shows.aspx" class="side-link">Shows</a>
+                    <a runat="server" href="~/Bookings.aspx" class="side-link">Bookings</a>
+                    <a runat="server" href="~/Tickets.aspx" class="side-link">Tickets</a>
+                    <details class="report-menu">
+                        <summary class="side-link">Reports</summary>
+                        <div class="report-submenu">
+                            <a runat="server" href="~/Reports/UserTickets.aspx" class="side-link sub-link">User Tickets</a>
+                            <a runat="server" href="~/Reports/TheaterMovies.aspx" class="side-link sub-link">Theater Movies</a>
+                            <a runat="server" href="~/Reports/MovieOccupancy.aspx" class="side-link sub-link">Movie Occupancy</a>
+                        </div>
+                    </details>
+                </nav>
+            </aside>
+
+            <main class="main-panel">
+                <header class="topbar">
+                    <h1>Cinema Ticket Booking System</h1>
+                    <span class="today"><%: DateTime.Now.ToString("dddd, dd MMM yyyy") %></span>
+                </header>
+                <section class="page-content">
+                    <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+                </section>
+            </main>
+        </div>
+    </form>
+</body>
+</html>
