@@ -8,6 +8,7 @@ namespace CinemaTicketSystem.Reports
 {
     public partial class TheaterMovies
     {
+        protected global::System.Web.UI.WebControls.DropDownList ddlTheaters;
         protected global::System.Web.UI.WebControls.Button btnLoad;
         protected global::System.Web.UI.WebControls.Label lblStatus;
         protected global::System.Web.UI.WebControls.GridView gvTheaterMovies;

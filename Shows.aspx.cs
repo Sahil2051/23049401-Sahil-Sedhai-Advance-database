@@ -50,7 +50,7 @@ namespace CinemaTicketSystem
                 var values = new Dictionary<string, object>
                 {
                     ["Show_Date"] = showDate,
-                    ["Show_Time"] = showTime.ToString(@"hh\\:mm"),
+                    ["Show_Time"] = showTime.ToString(@"hh\:mm"),
                     ["Show_Rating"] = txtShowRating.Text.Trim(),
                     ["Movie_Id"] = movieId,
                     ["Hall_Id"] = hallId
@@ -113,7 +113,7 @@ namespace CinemaTicketSystem
                 var parameters = new[]
                 {
                     new OracleParameter(":Show_Date", showDate),
-                    new OracleParameter(":Show_Time", showTime.ToString(@"hh\\:mm")),
+                    new OracleParameter(":Show_Time", showTime.ToString(@"hh\:mm")),
                     new OracleParameter(":Show_Rating", txtShowRating.Text.Trim()),
                     new OracleParameter(":Movie_Id", movieId),
                     new OracleParameter(":Hall_Id", hallId),

@@ -5,6 +5,12 @@
 
     <section class="card report-card">
         <h3>Movie Shows In Each Theater Hall</h3>
+        <div class="form-grid report-filter-grid">
+            <div class="field">
+                <label for="ddlTheaters">Theater</label>
+                <asp:DropDownList ID="ddlTheaters" runat="server" />
+            </div>
+        </div>
         <div class="actions">
             <asp:Button ID="btnLoad" runat="server" Text="Load Report" CssClass="btn btn-primary" OnClick="btnLoad_Click" />
         </div>
