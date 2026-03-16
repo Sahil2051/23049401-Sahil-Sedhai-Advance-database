@@ -6,6 +6,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%: Page.Title %> - KumariCinema</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
     <asp:PlaceHolder runat="server">
         <%: Scripts.Render("~/bundles/modernizr") %>
     </asp:PlaceHolder>
@@ -31,40 +35,124 @@
             </Scripts>
         </asp:ScriptManager>
 
-        <div class="app-shell">
-            <aside class="sidebar">
-                <div class="brand">KumariCinema</div>
-                <div class="brand-subtitle">KumariCinema</div>
+        <div class="app-shell" id="appShell">
+            <aside class="sidebar" id="appSidebar">
+                <div class="sidebar-top">
+                    <div class="brand-wrap">
+                        <div class="brand"><i class="fa-solid fa-film" aria-hidden="true"></i><span>KumariCinema</span></div>
+                        <div class="brand-subtitle">Cinema Management</div>
+                    </div>
+                </div>
                 <nav class="side-nav">
-                    <a runat="server" href="~/" class="side-link">Dashboard</a>
-                    <a runat="server" href="~/Users.aspx" class="side-link">Users</a>
-                    <a runat="server" href="~/Theaters.aspx" class="side-link">Theaters</a>
-                    <a runat="server" href="~/Halls.aspx" class="side-link">Halls</a>
-                    <a runat="server" href="~/Movies.aspx" class="side-link">Movies</a>
-                    <a runat="server" href="~/Shows.aspx" class="side-link">Shows</a>
-                    <a runat="server" href="~/Bookings.aspx" class="side-link">Bookings</a>
-                    <a runat="server" href="~/Tickets.aspx" class="side-link">Tickets</a>
-                    <details class="report-menu">
-                        <summary class="side-link">Reports</summary>
-                        <div class="report-submenu">
-                            <a runat="server" href="~/Reports/UserTickets.aspx" class="side-link sub-link">User Tickets</a>
-                            <a runat="server" href="~/Reports/TheaterMovies.aspx" class="side-link sub-link">Theater Movies</a>
-                            <a runat="server" href="~/Reports/MovieOccupancy.aspx" class="side-link sub-link">Movie Occupancy</a>
-                        </div>
-                    </details>
+                    <a runat="server" href="~/" class="side-link" data-nav="true"><i class="fa-solid fa-table-columns" aria-hidden="true"></i><span>Dashboard</span></a>
+
+                    <div class="nav-group-title">Management</div>
+                    <a runat="server" href="~/Users.aspx" class="side-link" data-nav="true"><i class="fa-solid fa-users" aria-hidden="true"></i><span>Users</span></a>
+                    <a runat="server" href="~/Theaters.aspx" class="side-link" data-nav="true"><i class="fa-solid fa-building" aria-hidden="true"></i><span>Theaters</span></a>
+                    <a runat="server" href="~/Halls.aspx" class="side-link" data-nav="true"><i class="fa-solid fa-door-open" aria-hidden="true"></i><span>Halls</span></a>
+                    <a runat="server" href="~/Movies.aspx" class="side-link" data-nav="true"><i class="fa-solid fa-clapperboard" aria-hidden="true"></i><span>Movies</span></a>
+                    <a runat="server" href="~/Shows.aspx" class="side-link" data-nav="true"><i class="fa-solid fa-clock" aria-hidden="true"></i><span>Shows</span></a>
+                    <a runat="server" href="~/Bookings.aspx" class="side-link" data-nav="true"><i class="fa-solid fa-receipt" aria-hidden="true"></i><span>Bookings</span></a>
+                    <a runat="server" href="~/Tickets.aspx" class="side-link" data-nav="true"><i class="fa-solid fa-ticket" aria-hidden="true"></i><span>Tickets</span></a>
+
+                    <div class="nav-group-title">Reports</div>
+                    <a runat="server" href="~/Reports/UserTickets.aspx" class="side-link" data-nav="true"><i class="fa-solid fa-user-check" aria-hidden="true"></i><span>User Tickets</span></a>
+                    <a runat="server" href="~/Reports/TheaterMovies.aspx" class="side-link" data-nav="true"><i class="fa-solid fa-film" aria-hidden="true"></i><span>Theater Movies</span></a>
+                    <a runat="server" href="~/Reports/MovieOccupancy.aspx" class="side-link" data-nav="true"><i class="fa-solid fa-chart-column" aria-hidden="true"></i><span>Movie Occupancy</span></a>
                 </nav>
             </aside>
 
             <main class="main-panel">
                 <header class="topbar">
-                    <h1>KumariCinema</h1>
+                    <div class="topbar-left">
+                        <h1>KumariCinema</h1>
+                    </div>
                     <span class="today"><%: DateTime.Now.ToString("dddd, dd MMM yyyy") %></span>
                 </header>
                 <section class="page-content">
                     <asp:ContentPlaceHolder ID="MainContent" runat="server" />
                 </section>
             </main>
+
+            <button type="button" class="sidebar-overlay" id="sidebarOverlay" aria-label="Close navigation"></button>
         </div>
+
+        <script type="text/javascript">
+            (function () {
+                var shell = document.getElementById("appShell");
+                var mobileMenuBtn = document.getElementById("mobileMenuBtn");
+                var sidebarCollapseBtn = document.getElementById("sidebarCollapseBtn");
+                var sidebarOverlay = document.getElementById("sidebarOverlay");
+
+                function syncCollapseLabel() {
+                    if (!sidebarCollapseBtn) {
+                        return;
+                    }
+
+                    var collapsed = shell.classList.contains("sidebar-collapsed");
+                    sidebarCollapseBtn.textContent = collapsed ? "Expand" : "Collapse";
+                    sidebarCollapseBtn.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+                }
+
+                function setActiveNavLink() {
+                    var currentPath = (window.location.pathname || "").toLowerCase();
+                    var isDashboard = currentPath === "/" || currentPath.endsWith("/default.aspx");
+                    var navLinks = document.querySelectorAll(".side-link[data-nav='true']");
+
+                    for (var i = 0; i < navLinks.length; i++) {
+                        var link = navLinks[i];
+                        var href = (link.getAttribute("href") || "").toLowerCase();
+                        var isActive = false;
+
+                        if (href === "/") {
+                            isActive = isDashboard;
+                        } else {
+                            isActive = currentPath === href;
+                        }
+
+                        if (isActive) {
+                            link.classList.add("is-active");
+                        } else {
+                            link.classList.remove("is-active");
+                        }
+                    }
+                }
+
+                if (mobileMenuBtn) {
+                    mobileMenuBtn.addEventListener("click", function () {
+                        shell.classList.toggle("sidebar-open");
+                    });
+                }
+
+                if (sidebarOverlay) {
+                    sidebarOverlay.addEventListener("click", function () {
+                        shell.classList.remove("sidebar-open");
+                    });
+                }
+
+                if (sidebarCollapseBtn) {
+                    sidebarCollapseBtn.addEventListener("click", function () {
+                        shell.classList.toggle("sidebar-collapsed");
+                        syncCollapseLabel();
+                    });
+                }
+
+                document.addEventListener("click", function (event) {
+                    var reportButton = event.target.closest(".report-card .btn");
+                    if (!reportButton) {
+                        return;
+                    }
+
+                    var reportCard = reportButton.closest(".report-card");
+                    if (reportCard) {
+                        reportCard.classList.add("is-loading");
+                    }
+                });
+
+                syncCollapseLabel();
+                setActiveNavLink();
+            })();
+        </script>
     </form>
 </body>
 </html>

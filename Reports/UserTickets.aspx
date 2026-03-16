@@ -1,10 +1,10 @@
 <%@ Page Title="User Tickets Report" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="UserTickets.aspx.cs" Inherits="CinemaTicketSystem.Reports.UserTickets" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <h2 class="page-title">User Tickets Report</h2>
+    <h2 class="page-title"><i class="fa-solid fa-user-check" aria-hidden="true"></i> User Tickets Report</h2>
 
     <section class="card report-card">
-        <h3>Tickets Purchased In Last 6 Months</h3>
+        <h3><i class="fa-solid fa-filter" aria-hidden="true"></i> Tickets Purchased In Last 6 Months</h3>
         <div class="form-grid report-filter-grid">
             <div class="field">
                 <label for="ddlUsers">User</label>
@@ -12,8 +12,9 @@
             </div>
         </div>
         <div class="actions">
-            <asp:Button ID="btnLoad" runat="server" Text="Load Report" CssClass="btn btn-primary" OnClick="btnLoad_Click" />
+            <asp:Button ID="btnLoad" runat="server" Text="Generate Report" CssClass="btn btn-primary" OnClick="btnLoad_Click" />
         </div>
+        <span class="loading-indicator"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>Generating report...</span>
         <asp:Label ID="lblStatus" runat="server" CssClass="status" />
     </section>
 
