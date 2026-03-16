@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 using CinemaTicketSystem.DataAccess;
 
 namespace CinemaTicketSystem
@@ -109,19 +109,19 @@ namespace CinemaTicketSystem
                 }
 
                 const string sql = @"UPDATE Ticket
-                                     SET Seat_Number = @Seat_Number,
-                                         Ticket_Status = @Ticket_Status,
-                                         Ticket_Price = @Ticket_Price,
-                                         Booking_Id = @Booking_Id
-                                     WHERE Ticket_Id = @Ticket_Id";
+                                     SET Seat_Number = :Seat_Number,
+                                         Ticket_Status = :Ticket_Status,
+                                         Ticket_Price = :Ticket_Price,
+                                         Booking_Id = :Booking_Id
+                                     WHERE Ticket_Id = :Ticket_Id";
 
                 var parameters = new[]
                 {
-                    new SqlParameter("@Seat_Number", txtSeatNumber.Text.Trim()),
-                    new SqlParameter("@Ticket_Status", txtTicketStatus.Text.Trim()),
-                    new SqlParameter("@Ticket_Price", ticketPrice),
-                    new SqlParameter("@Booking_Id", bookingId),
-                    new SqlParameter("@Ticket_Id", ticketId)
+                    new OracleParameter(":Seat_Number", txtSeatNumber.Text.Trim()),
+                    new OracleParameter(":Ticket_Status", txtTicketStatus.Text.Trim()),
+                    new OracleParameter(":Ticket_Price", ticketPrice),
+                    new OracleParameter(":Booking_Id", bookingId),
+                    new OracleParameter(":Ticket_Id", ticketId)
                 };
 
                 _dataAccess.ExecuteNonQuery(sql, parameters);
@@ -146,8 +146,8 @@ namespace CinemaTicketSystem
                     return;
                 }
 
-                const string sql = "DELETE FROM Ticket WHERE Ticket_Id = @Ticket_Id";
-                _dataAccess.ExecuteNonQuery(sql, new[] { new SqlParameter("@Ticket_Id", ticketId) });
+                const string sql = "DELETE FROM Ticket WHERE Ticket_Id = :Ticket_Id";
+                _dataAccess.ExecuteNonQuery(sql, new[] { new OracleParameter(":Ticket_Id", ticketId) });
                 lblStatus.Text = "Ticket record deleted.";
                 lblStatus.CssClass = "status";
                 ClearFormFields();
@@ -196,8 +196,8 @@ namespace CinemaTicketSystem
                                         m.Movie_Title
                                  FROM Ticket t
                                  INNER JOIN Booking b ON b.Booking_Id = t.Booking_Id
-                                 INNER JOIN [User] u ON u.User_Id = b.User_Id
-                                 INNER JOIN [Show] s ON s.Show_Id = b.Show_Id
+                             INNER JOIN AppUser u ON u.User_Id = b.User_Id
+                             INNER JOIN Show s ON s.Show_Id = b.Show_Id
                                  INNER JOIN Movie m ON m.Movie_Id = s.Movie_Id
                                  ORDER BY t.Ticket_Id DESC";
             gvTickets.DataSource = _dataAccess.ExecuteDataTable(sql);

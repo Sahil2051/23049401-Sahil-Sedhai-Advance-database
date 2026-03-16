@@ -78,6 +78,10 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Oracle.ManagedDataAccess, Version=4.122.19.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <HintPath>packages\Oracle.ManagedDataAccess.19.22.0\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
@@ -128,9 +132,6 @@
     <Content Include="Reports\MovieOccupancy.aspx" />
     <Content Include="Reports\TheaterMovies.aspx" />
     <Content Include="Reports\UserTickets.aspx" />
-    <Content Include="ReportMovieOccupancy.aspx" />
-    <Content Include="ReportTheaterMovies.aspx" />
-    <Content Include="ReportUserTickets.aspx" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -271,27 +272,6 @@
     </Compile>
     <Compile Include="Reports\UserTickets.aspx.designer.cs">
       <DependentUpon>UserTickets.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="ReportMovieOccupancy.aspx.cs">
-      <DependentUpon>ReportMovieOccupancy.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="ReportMovieOccupancy.aspx.designer.cs">
-      <DependentUpon>ReportMovieOccupancy.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="ReportTheaterMovies.aspx.cs">
-      <DependentUpon>ReportTheaterMovies.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="ReportTheaterMovies.aspx.designer.cs">
-      <DependentUpon>ReportTheaterMovies.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="ReportUserTickets.aspx.cs">
-      <DependentUpon>ReportUserTickets.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="ReportUserTickets.aspx.designer.cs">
-      <DependentUpon>ReportUserTickets.aspx</DependentUpon>
     </Compile>
     <Compile Include="Shows.aspx.cs">
       <DependentUpon>Shows.aspx</DependentUpon>

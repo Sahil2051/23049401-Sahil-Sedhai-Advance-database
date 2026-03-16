@@ -1,6 +1,6 @@
 using System;
 using System.Globalization;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 using CinemaTicketSystem.DataAccess;
 
 namespace CinemaTicketSystem
@@ -30,14 +30,14 @@ namespace CinemaTicketSystem
                 }
 
                 const string sql = @"INSERT INTO Booking (Booking_Date, Booking_Status, Total_Amount, User_Id, Show_Id)
-                                     VALUES (@Booking_Date, @Booking_Status, @Total_Amount, @User_Id, @Show_Id)";
+                                     VALUES (:Booking_Date, :Booking_Status, :Total_Amount, :User_Id, :Show_Id)";
                 var parameters = new[]
                 {
-                    new SqlParameter("@Booking_Date", bookingDate),
-                    new SqlParameter("@Booking_Status", txtBookingStatus.Text.Trim()),
-                    new SqlParameter("@Total_Amount", totalAmount),
-                    new SqlParameter("@User_Id", userId),
-                    new SqlParameter("@Show_Id", showId)
+                    new OracleParameter(":Booking_Date", bookingDate),
+                    new OracleParameter(":Booking_Status", txtBookingStatus.Text.Trim()),
+                    new OracleParameter(":Total_Amount", totalAmount),
+                    new OracleParameter(":User_Id", userId),
+                    new OracleParameter(":Show_Id", showId)
                 };
 
                 _dataAccess.ExecuteNonQuery(sql, parameters);
@@ -68,20 +68,20 @@ namespace CinemaTicketSystem
                 }
 
                 const string sql = @"UPDATE Booking
-                                     SET Booking_Date = @Booking_Date,
-                                         Booking_Status = @Booking_Status,
-                                         Total_Amount = @Total_Amount,
-                                         User_Id = @User_Id,
-                                         Show_Id = @Show_Id
-                                     WHERE Booking_Id = @Booking_Id";
+                                     SET Booking_Date = :Booking_Date,
+                                         Booking_Status = :Booking_Status,
+                                         Total_Amount = :Total_Amount,
+                                         User_Id = :User_Id,
+                                         Show_Id = :Show_Id
+                                     WHERE Booking_Id = :Booking_Id";
                 var parameters = new[]
                 {
-                    new SqlParameter("@Booking_Date", bookingDate),
-                    new SqlParameter("@Booking_Status", txtBookingStatus.Text.Trim()),
-                    new SqlParameter("@Total_Amount", totalAmount),
-                    new SqlParameter("@User_Id", userId),
-                    new SqlParameter("@Show_Id", showId),
-                    new SqlParameter("@Booking_Id", bookingId)
+                    new OracleParameter(":Booking_Date", bookingDate),
+                    new OracleParameter(":Booking_Status", txtBookingStatus.Text.Trim()),
+                    new OracleParameter(":Total_Amount", totalAmount),
+                    new OracleParameter(":User_Id", userId),
+                    new OracleParameter(":Show_Id", showId),
+                    new OracleParameter(":Booking_Id", bookingId)
                 };
 
                 _dataAccess.ExecuteNonQuery(sql, parameters);
@@ -106,8 +106,8 @@ namespace CinemaTicketSystem
                     return;
                 }
 
-                const string sql = "DELETE FROM Booking WHERE Booking_Id = @Booking_Id";
-                _dataAccess.ExecuteNonQuery(sql, new[] { new SqlParameter("@Booking_Id", bookingId) });
+                const string sql = "DELETE FROM Booking WHERE Booking_Id = :Booking_Id";
+                _dataAccess.ExecuteNonQuery(sql, new[] { new OracleParameter(":Booking_Id", bookingId) });
                 lblStatus.Text = "Booking record deleted.";
                 lblStatus.CssClass = "status";
                 ClearFormFields();
@@ -148,7 +148,7 @@ namespace CinemaTicketSystem
 
         private void BindUsers()
         {
-            var table = _dataAccess.ExecuteDataTable("SELECT User_Id, User_Name FROM [User] ORDER BY User_Name");
+            var table = _dataAccess.ExecuteDataTable("SELECT User_Id, User_Name FROM AppUser ORDER BY User_Name");
             ddlUser.DataSource = table;
             ddlUser.DataTextField = "User_Name";
             ddlUser.DataValueField = "User_Id";
@@ -159,8 +159,8 @@ namespace CinemaTicketSystem
         private void BindShows()
         {
             const string sql = @"SELECT s.Show_Id,
-                                        CONCAT(m.Movie_Title, ' | ', CONVERT(VARCHAR(10), s.Show_Date, 120), ' ', CONVERT(VARCHAR(5), s.Show_Time, 108)) AS Show_Label
-                                 FROM [Show] s
+                                 m.Movie_Title || ' | ' || TO_CHAR(s.Show_Date, 'YYYY-MM-DD') || ' ' || s.Show_Time AS Show_Label
+                             FROM Show s
                                  INNER JOIN Movie m ON m.Movie_Id = s.Movie_Id
                                  ORDER BY s.Show_Date DESC, s.Show_Time DESC";
             var table = _dataAccess.ExecuteDataTable(sql);
@@ -178,10 +178,10 @@ namespace CinemaTicketSystem
                                         b.Booking_Status,
                                         b.Total_Amount,
                                         u.User_Name,
-                                        CONCAT(m.Movie_Title, ' | ', CONVERT(VARCHAR(10), s.Show_Date, 120), ' ', CONVERT(VARCHAR(5), s.Show_Time, 108)) AS Show_Detail
+                                 m.Movie_Title || ' | ' || TO_CHAR(s.Show_Date, 'YYYY-MM-DD') || ' ' || s.Show_Time AS Show_Detail
                                  FROM Booking b
-                                 INNER JOIN [User] u ON u.User_Id = b.User_Id
-                                 INNER JOIN [Show] s ON s.Show_Id = b.Show_Id
+                             INNER JOIN AppUser u ON u.User_Id = b.User_Id
+                             INNER JOIN Show s ON s.Show_Id = b.Show_Id
                                  INNER JOIN Movie m ON m.Movie_Id = s.Movie_Id
                                  ORDER BY b.Booking_Id DESC";
             gvBookings.DataSource = _dataAccess.ExecuteDataTable(sql);

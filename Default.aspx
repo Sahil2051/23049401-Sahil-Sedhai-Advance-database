@@ -41,7 +41,7 @@
             <ul class="widget-list">
                 <li><a runat="server" href="~/Reports/UserTickets.aspx">User Tickets (last 6 months)</a></li>
                 <li><a runat="server" href="~/Reports/TheaterMovies.aspx">Theater Movies schedule</a></li>
-                <li><a runat="server" href="~/Reports/MovieOccupancy.aspx">Movie Occupancy top halls</a></li>
+                <li><a runat="server" href="~/Reports/MovieOccupancy.aspx">Movie Occupancy top theaters</a></li>
             </ul>
         </section>
 

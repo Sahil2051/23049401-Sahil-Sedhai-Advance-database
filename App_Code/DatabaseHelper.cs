@@ -1,6 +1,8 @@
+using System;
 using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
+using System.Diagnostics;
+using Oracle.ManagedDataAccess.Client;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Web.Hosting;
@@ -11,7 +13,7 @@ namespace CinemaTicketSystem.App_Code
     {
         private static readonly object InitializationLock = new object();
         private static bool _isInitialized;
-        private readonly string _connectionString = ConfigurationManager.ConnectionStrings["CinemaDb"].ConnectionString;
+        private readonly string _connectionString = ConfigurationManager.ConnectionStrings["OracleConnection"].ConnectionString;
 
         public static void EnsureDatabaseInitialized()
         {
@@ -27,31 +29,42 @@ namespace CinemaTicketSystem.App_Code
                     return;
                 }
 
-                InitializeDatabaseFromScript();
+                try
+                {
+                    InitializeDatabaseFromScript();
+                }
+                catch (Exception ex)
+                {
+                    // Do not block site startup if Oracle auth or privileges are not ready yet.
+                    Trace.TraceWarning("Database initialization was skipped: " + ex.Message);
+                }
+
                 _isInitialized = true;
             }
         }
 
-        public SqlConnection OpenConnection()
+        public OracleConnection OpenConnection()
         {
-            var connection = new SqlConnection(_connectionString);
+            var connection = new OracleConnection(_connectionString);
             connection.Open();
             return connection;
         }
 
-        public DataTable ExecuteQuery(string query, params SqlParameter[] parameters)
+        public DataTable ExecuteQuery(string query, params OracleParameter[] parameters)
         {
             try
             {
                 using (var connection = OpenConnection())
-                using (var command = new SqlCommand(query, connection))
+                using (var command = new OracleCommand(NormalizeSql(query), connection))
                 {
+                    command.BindByName = true;
+
                     if (parameters != null && parameters.Length > 0)
                     {
-                        command.Parameters.AddRange(parameters);
+                        command.Parameters.AddRange(NormalizeParameters(parameters));
                     }
 
-                    using (var adapter = new SqlDataAdapter(command))
+                    using (var adapter = new OracleDataAdapter(command))
                     {
                         var table = new DataTable();
                         adapter.Fill(table);
@@ -59,20 +72,22 @@ namespace CinemaTicketSystem.App_Code
                     }
                 }
             }
-            catch (SqlException)
+            catch (OracleException)
             {
                 return new DataTable();
             }
         }
 
-        public int ExecuteNonQuery(string query, params SqlParameter[] parameters)
+        public int ExecuteNonQuery(string query, params OracleParameter[] parameters)
         {
             using (var connection = OpenConnection())
-            using (var command = new SqlCommand(query, connection))
+            using (var command = new OracleCommand(NormalizeSql(query), connection))
             {
+                command.BindByName = true;
+
                 if (parameters != null && parameters.Length > 0)
                 {
-                    command.Parameters.AddRange(parameters);
+                    command.Parameters.AddRange(NormalizeParameters(parameters));
                 }
 
                 return command.ExecuteNonQuery();
@@ -81,16 +96,16 @@ namespace CinemaTicketSystem.App_Code
 
         private static void InitializeDatabaseFromScript()
         {
-            var cinemaConnection = ConfigurationManager.ConnectionStrings["CinemaDb"]?.ConnectionString;
+            var cinemaConnection = ConfigurationManager.ConnectionStrings["OracleConnection"]?.ConnectionString;
             if (string.IsNullOrWhiteSpace(cinemaConnection))
             {
-                throw new ConfigurationErrorsException("Connection string 'CinemaDb' is missing.");
+                throw new ConfigurationErrorsException("Connection string 'OracleConnection' is missing.");
             }
 
-            var builder = new SqlConnectionStringBuilder(cinemaConnection);
-            if (string.IsNullOrWhiteSpace(builder.InitialCatalog))
+            if (HasPlaceholderCredentials(cinemaConnection))
             {
-                throw new ConfigurationErrorsException("Connection string 'CinemaDb' must include Initial Catalog.");
+                // Skip initialization when default placeholder credentials are still configured.
+                return;
             }
 
             var schemaPath = HostingEnvironment.MapPath("~/Sql/DatabaseSchema.sql");
@@ -100,26 +115,71 @@ namespace CinemaTicketSystem.App_Code
             }
 
             var script = File.ReadAllText(schemaPath);
-            builder.InitialCatalog = "master";
 
-            using (var connection = new SqlConnection(builder.ConnectionString))
+            using (var connection = new OracleConnection(cinemaConnection))
             {
                 connection.Open();
 
-                foreach (var batch in Regex.Split(script, @"^\s*GO\s*(?:$|--.*$)", RegexOptions.Multiline | RegexOptions.IgnoreCase))
+                foreach (var batch in Regex.Split(script, @"^\s*/\s*$", RegexOptions.Multiline))
                 {
                     if (string.IsNullOrWhiteSpace(batch))
                     {
                         continue;
                     }
 
-                    using (var command = new SqlCommand(batch, connection))
+                    using (var command = new OracleCommand(batch, connection))
                     {
+                        command.BindByName = true;
                         command.CommandTimeout = 60;
                         command.ExecuteNonQuery();
                     }
                 }
             }
+        }
+
+        private static bool HasPlaceholderCredentials(string connectionString)
+        {
+            var builder = new OracleConnectionStringBuilder(connectionString);
+            var password = builder.Password ?? string.Empty;
+            return string.IsNullOrWhiteSpace(password)
+                   || string.Equals(password, "yourpassword", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static OracleParameter[] NormalizeParameters(OracleParameter[] parameters)
+        {
+            var normalized = new System.Collections.Generic.List<OracleParameter>();
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                var parameter = parameters[i];
+                if (parameter == null)
+                {
+                    continue;
+                }
+
+                var parameterName = parameter.ParameterName ?? string.Empty;
+                parameterName = parameterName.Trim().TrimStart('@', ':');
+                parameter.ParameterName = ":" + parameterName;
+                if (parameter.Value == null)
+                {
+                    parameter.Value = DBNull.Value;
+                }
+
+                normalized.Add(parameter);
+            }
+
+            return normalized.ToArray();
+        }
+
+        private static string NormalizeSql(string sql)
+        {
+            if (string.IsNullOrWhiteSpace(sql))
+            {
+                return sql;
+            }
+
+            var normalized = Regex.Replace(sql, @"\[(?<name>[^\]]+)\]", "${name}");
+            normalized = Regex.Replace(normalized, @"@(?<name>[A-Za-z0-9_]+)", ":${name}");
+            return normalized;
         }
     }
 }

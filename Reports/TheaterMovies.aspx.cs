@@ -28,7 +28,7 @@ namespace CinemaTicketSystem.Reports
                                     m.Movie_Title,
                                     s.Show_Date,
                                     s.Show_Time
-                                FROM [Show] s
+                                FROM Show s
                                 INNER JOIN Hall h ON h.Hall_Id = s.Hall_Id
                                 INNER JOIN Theater t ON t.Theater_Id = h.Theater_Id
                                 INNER JOIN Movie m ON m.Movie_Id = s.Movie_Id

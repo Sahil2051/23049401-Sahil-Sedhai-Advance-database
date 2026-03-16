@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 using System.Linq;
 
 namespace CinemaTicketSystem.DataAccess
@@ -14,7 +14,7 @@ namespace CinemaTicketSystem.DataAccess
         {
             {
                 "User",
-                new EntityConfig("User", "User_Id", new[]
+                new EntityConfig("AppUser", "User_Id", new[]
                 {
                     "User_Name", "User_Email", "User_Contact_Number", "User_Address", "User_Registration_Date"
                 })
@@ -73,8 +73,8 @@ namespace CinemaTicketSystem.DataAccess
         public DataRow GetById(string entityName, int id)
         {
             var config = GetConfig(entityName);
-            var sql = $"SELECT * FROM {QuoteName(config.TableName)} WHERE {QuoteName(config.PrimaryKey)} = @Id";
-            var table = _dataAccess.ExecuteDataTable(sql, new[] { new SqlParameter("@Id", id) });
+            var sql = $"SELECT * FROM {QuoteName(config.TableName)} WHERE {QuoteName(config.PrimaryKey)} = :Id";
+            var table = _dataAccess.ExecuteDataTable(sql, new[] { new OracleParameter(":Id", id) });
             return table.Rows.Count == 0 ? null : table.Rows[0];
         }
 
@@ -92,7 +92,7 @@ namespace CinemaTicketSystem.DataAccess
             var filteredValues = FilterValues(config, values);
 
             var columns = string.Join(", ", filteredValues.Keys.Select(QuoteName));
-            var parameters = string.Join(", ", filteredValues.Keys.Select(column => $"@{column}"));
+            var parameters = string.Join(", ", filteredValues.Keys.Select(column => $":{column}"));
             var sql = $"INSERT INTO {QuoteName(config.TableName)} ({columns}) VALUES ({parameters})";
 
             _dataAccess.ExecuteNonQuery(sql, BuildParameters(filteredValues));
@@ -103,11 +103,11 @@ namespace CinemaTicketSystem.DataAccess
             var config = GetConfig(entityName);
             var filteredValues = FilterValues(config, values);
 
-            var setClause = string.Join(", ", filteredValues.Keys.Select(column => $"{QuoteName(column)} = @{column}"));
-            var sql = $"UPDATE {QuoteName(config.TableName)} SET {setClause} WHERE {QuoteName(config.PrimaryKey)} = @Id";
+            var setClause = string.Join(", ", filteredValues.Keys.Select(column => $"{QuoteName(column)} = :{column}"));
+            var sql = $"UPDATE {QuoteName(config.TableName)} SET {setClause} WHERE {QuoteName(config.PrimaryKey)} = :Id";
 
             var parameters = BuildParameters(filteredValues);
-            parameters.Add(new SqlParameter("@Id", id));
+            parameters.Add(new OracleParameter(":Id", id));
 
             _dataAccess.ExecuteNonQuery(sql, parameters);
         }
@@ -115,8 +115,8 @@ namespace CinemaTicketSystem.DataAccess
         public void Delete(string entityName, int id)
         {
             var config = GetConfig(entityName);
-            var sql = $"DELETE FROM {QuoteName(config.TableName)} WHERE {QuoteName(config.PrimaryKey)} = @Id";
-            _dataAccess.ExecuteNonQuery(sql, new[] { new SqlParameter("@Id", id) });
+            var sql = $"DELETE FROM {QuoteName(config.TableName)} WHERE {QuoteName(config.PrimaryKey)} = :Id";
+            _dataAccess.ExecuteNonQuery(sql, new[] { new OracleParameter(":Id", id) });
         }
 
         private static EntityConfig GetConfig(string entityName)
@@ -143,12 +143,12 @@ namespace CinemaTicketSystem.DataAccess
             return filtered;
         }
 
-        private static List<SqlParameter> BuildParameters(IDictionary<string, object> values)
+        private static List<OracleParameter> BuildParameters(IDictionary<string, object> values)
         {
-            var parameters = new List<SqlParameter>();
+            var parameters = new List<OracleParameter>();
             foreach (var item in values)
             {
-                parameters.Add(new SqlParameter($"@{item.Key}", item.Value ?? DBNull.Value));
+                parameters.Add(new OracleParameter($":{item.Key}", item.Value ?? DBNull.Value));
             }
 
             return parameters;
@@ -156,7 +156,7 @@ namespace CinemaTicketSystem.DataAccess
 
         private static string QuoteName(string name)
         {
-            return $"[{name}]";
+            return name;
         }
 
         private sealed class EntityConfig

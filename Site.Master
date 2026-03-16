@@ -5,7 +5,7 @@
 <head runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%: Page.Title %> - Cinema Ticket System</title>
+    <title><%: Page.Title %> - KumariCinema</title>
     <asp:PlaceHolder runat="server">
         <%: Scripts.Render("~/bundles/modernizr") %>
     </asp:PlaceHolder>
@@ -33,8 +33,8 @@
 
         <div class="app-shell">
             <aside class="sidebar">
-                <div class="brand">Cinema Admin</div>
-                <div class="brand-subtitle">Ticket Booking Suite</div>
+                <div class="brand">KumariCinema</div>
+                <div class="brand-subtitle">KumariCinema</div>
                 <nav class="side-nav">
                     <a runat="server" href="~/" class="side-link">Dashboard</a>
                     <a runat="server" href="~/Users.aspx" class="side-link">Users</a>
@@ -57,7 +57,7 @@
 
             <main class="main-panel">
                 <header class="topbar">
-                    <h1>Cinema Ticket Booking System</h1>
+                    <h1>KumariCinema</h1>
                     <span class="today"><%: DateTime.Now.ToString("dddd, dd MMM yyyy") %></span>
                 </header>
                 <section class="page-content">

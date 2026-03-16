@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 using CinemaTicketSystem.DataAccess;
 
 namespace CinemaTicketSystem
@@ -50,7 +50,7 @@ namespace CinemaTicketSystem
                 var values = new Dictionary<string, object>
                 {
                     ["Show_Date"] = showDate,
-                    ["Show_Time"] = showTime,
+                    ["Show_Time"] = showTime.ToString(@"hh\\:mm"),
                     ["Show_Rating"] = txtShowRating.Text.Trim(),
                     ["Movie_Id"] = movieId,
                     ["Hall_Id"] = hallId
@@ -102,22 +102,22 @@ namespace CinemaTicketSystem
                     return;
                 }
 
-                const string sql = @"UPDATE [Show]
-                                     SET Show_Date = @Show_Date,
-                                         Show_Time = @Show_Time,
-                                         Show_Rating = @Show_Rating,
-                                         Movie_Id = @Movie_Id,
-                                         Hall_Id = @Hall_Id
-                                     WHERE Show_Id = @Show_Id";
+                const string sql = @"UPDATE Show
+                                     SET Show_Date = :Show_Date,
+                                         Show_Time = :Show_Time,
+                                         Show_Rating = :Show_Rating,
+                                         Movie_Id = :Movie_Id,
+                                         Hall_Id = :Hall_Id
+                                     WHERE Show_Id = :Show_Id";
 
                 var parameters = new[]
                 {
-                    new SqlParameter("@Show_Date", showDate),
-                    new SqlParameter("@Show_Time", showTime),
-                    new SqlParameter("@Show_Rating", txtShowRating.Text.Trim()),
-                    new SqlParameter("@Movie_Id", movieId),
-                    new SqlParameter("@Hall_Id", hallId),
-                    new SqlParameter("@Show_Id", showId)
+                    new OracleParameter(":Show_Date", showDate),
+                    new OracleParameter(":Show_Time", showTime.ToString(@"hh\\:mm")),
+                    new OracleParameter(":Show_Rating", txtShowRating.Text.Trim()),
+                    new OracleParameter(":Movie_Id", movieId),
+                    new OracleParameter(":Hall_Id", hallId),
+                    new OracleParameter(":Show_Id", showId)
                 };
 
                 _dataAccess.ExecuteNonQuery(sql, parameters);
@@ -142,8 +142,8 @@ namespace CinemaTicketSystem
                     return;
                 }
 
-                const string sql = "DELETE FROM [Show] WHERE Show_Id = @Show_Id";
-                _dataAccess.ExecuteNonQuery(sql, new[] { new SqlParameter("@Show_Id", showId) });
+                const string sql = "DELETE FROM Show WHERE Show_Id = :Show_Id";
+                _dataAccess.ExecuteNonQuery(sql, new[] { new OracleParameter(":Show_Id", showId) });
                 lblStatus.Text = "Show record deleted.";
                 lblStatus.CssClass = "status";
                 ClearFormFields();
@@ -185,7 +185,7 @@ namespace CinemaTicketSystem
         private void BindGrid()
         {
             const string sql = @"SELECT s.Show_Id, s.Show_Date, s.Show_Time, s.Show_Rating, m.Movie_Title, h.Hall_Number
-                                 FROM [Show] s
+                                 FROM Show s
                                  INNER JOIN Movie m ON m.Movie_Id = s.Movie_Id
                                  INNER JOIN Hall h ON h.Hall_Id = s.Hall_Id
                                  ORDER BY s.Show_Id DESC";

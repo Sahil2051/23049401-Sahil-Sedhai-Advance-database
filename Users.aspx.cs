@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 using System.Text.RegularExpressions;
 using CinemaTicketSystem.DataAccess;
 
@@ -65,22 +65,22 @@ namespace CinemaTicketSystem
                     return;
                 }
 
-                const string sql = @"UPDATE [User]
-                                     SET User_Name = @User_Name,
-                                         User_Email = @User_Email,
-                                         User_Contact_Number = @User_Contact_Number,
-                                         User_Address = @User_Address,
-                                         User_Registration_Date = @User_Registration_Date
-                                     WHERE User_Id = @User_Id";
+                const string sql = @"UPDATE AppUser
+                                     SET User_Name = :User_Name,
+                                         User_Email = :User_Email,
+                                         User_Contact_Number = :User_Contact_Number,
+                                         User_Address = :User_Address,
+                                         User_Registration_Date = :User_Registration_Date
+                                     WHERE User_Id = :User_Id";
 
                 var parameters = new[]
                 {
-                    new SqlParameter("@User_Name", txtUserName.Text.Trim()),
-                    new SqlParameter("@User_Email", txtUserEmail.Text.Trim()),
-                    new SqlParameter("@User_Contact_Number", txtUserContact.Text.Trim()),
-                    new SqlParameter("@User_Address", txtUserAddress.Text.Trim()),
-                    new SqlParameter("@User_Registration_Date", registrationDate),
-                    new SqlParameter("@User_Id", userId)
+                    new OracleParameter(":User_Name", txtUserName.Text.Trim()),
+                    new OracleParameter(":User_Email", txtUserEmail.Text.Trim()),
+                    new OracleParameter(":User_Contact_Number", txtUserContact.Text.Trim()),
+                    new OracleParameter(":User_Address", txtUserAddress.Text.Trim()),
+                    new OracleParameter(":User_Registration_Date", registrationDate),
+                    new OracleParameter(":User_Id", userId)
                 };
 
                 _dataAccess.ExecuteNonQuery(sql, parameters);
@@ -105,8 +105,8 @@ namespace CinemaTicketSystem
                     return;
                 }
 
-                const string sql = "DELETE FROM [User] WHERE User_Id = @User_Id";
-                _dataAccess.ExecuteNonQuery(sql, new[] { new SqlParameter("@User_Id", userId) });
+                const string sql = "DELETE FROM AppUser WHERE User_Id = :User_Id";
+                _dataAccess.ExecuteNonQuery(sql, new[] { new OracleParameter(":User_Id", userId) });
                 lblStatus.Text = "User record deleted.";
 
                 lblStatus.CssClass = "status";

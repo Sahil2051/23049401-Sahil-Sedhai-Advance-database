@@ -1,6 +1,6 @@
 using System;
 using System.Data;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 using CinemaTicketSystem.App_Code;
 
 namespace CinemaTicketSystem.Reports
@@ -25,7 +25,7 @@ namespace CinemaTicketSystem.Reports
 
         private void BindUsers()
         {
-            var users = _db.ExecuteQuery("SELECT User_Id, User_Name FROM [User] ORDER BY User_Name");
+            var users = _db.ExecuteQuery("SELECT User_Id, User_Name FROM AppUser ORDER BY User_Name");
             ddlUsers.DataSource = users;
             ddlUsers.DataTextField = "User_Name";
             ddlUsers.DataValueField = "User_Id";
@@ -52,14 +52,14 @@ namespace CinemaTicketSystem.Reports
                                     t.Ticket_Price
                                 FROM Ticket t
                                 INNER JOIN Booking b ON b.Booking_Id = t.Booking_Id
-                                INNER JOIN [User] u ON u.User_Id = b.User_Id
-                                INNER JOIN [Show] s ON s.Show_Id = b.Show_Id
+                                                                INNER JOIN AppUser u ON u.User_Id = b.User_Id
+                                                                INNER JOIN Show s ON s.Show_Id = b.Show_Id
                                 INNER JOIN Movie m ON m.Movie_Id = s.Movie_Id
-                                WHERE u.User_Id = @UserId
-                                  AND b.Booking_Date >= DATEADD(MONTH, -6, CAST(GETDATE() AS DATE))
+                                                                WHERE u.User_Id = :UserId
+                                                                    AND b.Booking_Date >= ADD_MONTHS(SYSDATE, -6)
                                 ORDER BY s.Show_Date DESC, s.Show_Time DESC";
 
-            var table = _db.ExecuteQuery(sql, new SqlParameter("@UserId", userId));
+                        var table = _db.ExecuteQuery(sql, new OracleParameter(":UserId", userId));
             gvUserTickets.DataSource = table;
             gvUserTickets.DataBind();
             lblStatus.Text = table.Rows.Count + " record(s) loaded.";

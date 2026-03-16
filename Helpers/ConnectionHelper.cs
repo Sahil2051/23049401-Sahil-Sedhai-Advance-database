@@ -1,16 +1,16 @@
 using System.Configuration;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 
 namespace CinemaTicketSystem.Helpers
 {
     public static class ConnectionHelper
     {
-        private const string ConnectionName = "CinemaDb";
+        private const string ConnectionName = "OracleConnection";
 
-        public static SqlConnection CreateConnection()
+        public static OracleConnection CreateConnection()
         {
             var connectionString = ConfigurationManager.ConnectionStrings[ConnectionName]?.ConnectionString;
-            return new SqlConnection(connectionString);
+            return new OracleConnection(connectionString);
         }
     }
 }

@@ -1,6 +1,6 @@
 using System;
 using System.Data;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 using CinemaTicketSystem.App_Code;
 
 namespace CinemaTicketSystem.Reports
@@ -43,35 +43,35 @@ namespace CinemaTicketSystem.Reports
                 return;
             }
 
-            const string sql = @"WITH HallOccupancy AS
+            const string sql = @"WITH TheaterOccupancy AS
                                 (
                                     SELECT
-                                        m.Movie_Title,
                                         t.Theater_Name,
-                                        h.Hall_Number,
-                                        h.Hall_Seating_Capacity,
-                                        SUM(CASE WHEN tk.Ticket_Status = 'Paid' THEN 1 ELSE 0 END) AS Paid_Tickets
-                                    FROM [Show] s
-                                    INNER JOIN Movie m ON m.Movie_Id = s.Movie_Id
+                                        COUNT(tk.Ticket_Id) AS Paid_Tickets,
+                                        SUM(h.Hall_Seating_Capacity) AS Total_Seats
+                                    FROM Movie m
+                                    INNER JOIN Show s ON s.Movie_Id = m.Movie_Id
                                     INNER JOIN Hall h ON h.Hall_Id = s.Hall_Id
                                     INNER JOIN Theater t ON t.Theater_Id = h.Theater_Id
-                                    LEFT JOIN Booking b ON b.Show_Id = s.Show_Id
-                                    LEFT JOIN Ticket tk ON tk.Booking_Id = b.Booking_Id
-                                    WHERE s.Movie_Id = @MovieId
-                                    GROUP BY m.Movie_Title, t.Theater_Name, h.Hall_Number, h.Hall_Seating_Capacity
+                                    INNER JOIN Booking b ON b.Show_Id = s.Show_Id
+                                    INNER JOIN Ticket tk ON tk.Booking_Id = b.Booking_Id
+                                    WHERE m.Movie_Id = :MovieId
+                                      AND UPPER(tk.Ticket_Status) = 'PAID'
+                                    GROUP BY t.Theater_Name
                                 )
-                                SELECT TOP (3)
-                                    Movie_Title,
+                                SELECT
                                     Theater_Name,
-                                    Hall_Number,
-                                    CASE WHEN Hall_Seating_Capacity = 0
+                                    Paid_Tickets,
+                                    Total_Seats,
+                                    CASE WHEN Total_Seats = 0
                                          THEN 0
-                                         ELSE CAST(Paid_Tickets * 100.0 / Hall_Seating_Capacity AS DECIMAL(10, 2))
+                                         ELSE ROUND((Paid_Tickets / Total_Seats) * 100, 2)
                                     END AS Occupancy_Percentage
-                                FROM HallOccupancy
-                                ORDER BY Occupancy_Percentage DESC";
+                                FROM TheaterOccupancy
+                                ORDER BY Occupancy_Percentage DESC
+                                FETCH FIRST 3 ROWS ONLY";
 
-            var table = _db.ExecuteQuery(sql, new SqlParameter("@MovieId", movieId));
+            var table = _db.ExecuteQuery(sql, new OracleParameter(":MovieId", movieId));
             gvMovieOccupancy.DataSource = table;
             gvMovieOccupancy.DataBind();
             lblStatus.Text = table.Rows.Count + " record(s) loaded.";

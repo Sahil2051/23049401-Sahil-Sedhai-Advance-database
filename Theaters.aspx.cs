@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 using CinemaTicketSystem.DataAccess;
 
 namespace CinemaTicketSystem
@@ -67,21 +67,21 @@ namespace CinemaTicketSystem
                 }
 
                 const string sql = @"UPDATE Theater
-                                     SET Theater_Name = @Theater_Name,
-                                         Theater_City = @Theater_City,
-                                         Theater_Location = @Theater_Location,
-                                         Theater_Contact_Number = @Theater_Contact_Number,
-                                         Theater_Total_Halls = @Theater_Total_Halls
-                                     WHERE Theater_Id = @Theater_Id";
+                                     SET Theater_Name = :Theater_Name,
+                                         Theater_City = :Theater_City,
+                                         Theater_Location = :Theater_Location,
+                                         Theater_Contact_Number = :Theater_Contact_Number,
+                                         Theater_Total_Halls = :Theater_Total_Halls
+                                     WHERE Theater_Id = :Theater_Id";
 
                 var parameters = new[]
                 {
-                    new SqlParameter("@Theater_Name", txtTheaterName.Text.Trim()),
-                    new SqlParameter("@Theater_City", txtTheaterCity.Text.Trim()),
-                    new SqlParameter("@Theater_Location", txtTheaterLocation.Text.Trim()),
-                    new SqlParameter("@Theater_Contact_Number", txtTheaterContact.Text.Trim()),
-                    new SqlParameter("@Theater_Total_Halls", totalHalls),
-                    new SqlParameter("@Theater_Id", theaterId)
+                    new OracleParameter(":Theater_Name", txtTheaterName.Text.Trim()),
+                    new OracleParameter(":Theater_City", txtTheaterCity.Text.Trim()),
+                    new OracleParameter(":Theater_Location", txtTheaterLocation.Text.Trim()),
+                    new OracleParameter(":Theater_Contact_Number", txtTheaterContact.Text.Trim()),
+                    new OracleParameter(":Theater_Total_Halls", totalHalls),
+                    new OracleParameter(":Theater_Id", theaterId)
                 };
 
                 _dataAccess.ExecuteNonQuery(sql, parameters);
@@ -106,8 +106,8 @@ namespace CinemaTicketSystem
                     return;
                 }
 
-                const string sql = "DELETE FROM Theater WHERE Theater_Id = @Theater_Id";
-                _dataAccess.ExecuteNonQuery(sql, new[] { new SqlParameter("@Theater_Id", theaterId) });
+                const string sql = "DELETE FROM Theater WHERE Theater_Id = :Theater_Id";
+                _dataAccess.ExecuteNonQuery(sql, new[] { new OracleParameter(":Theater_Id", theaterId) });
                 lblStatus.Text = "Theater record deleted.";
 
                 lblStatus.CssClass = "status";

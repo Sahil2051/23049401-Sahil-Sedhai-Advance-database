@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 using CinemaTicketSystem.DataAccess;
 
 namespace CinemaTicketSystem
@@ -79,21 +79,21 @@ namespace CinemaTicketSystem
                 }
 
                 const string sql = @"UPDATE Movie
-                                     SET Movie_Title = @Movie_Title,
-                                         Movie_Duration = @Movie_Duration,
-                                         Movie_Language = @Movie_Language,
-                                         Movie_Genre = @Movie_Genre,
-                                         Movie_Release_Date = @Movie_Release_Date
-                                     WHERE Movie_Id = @Movie_Id";
+                                     SET Movie_Title = :Movie_Title,
+                                         Movie_Duration = :Movie_Duration,
+                                         Movie_Language = :Movie_Language,
+                                         Movie_Genre = :Movie_Genre,
+                                         Movie_Release_Date = :Movie_Release_Date
+                                     WHERE Movie_Id = :Movie_Id";
 
                 var parameters = new[]
                 {
-                    new SqlParameter("@Movie_Title", txtMovieTitle.Text.Trim()),
-                    new SqlParameter("@Movie_Duration", duration),
-                    new SqlParameter("@Movie_Language", txtLanguage.Text.Trim()),
-                    new SqlParameter("@Movie_Genre", txtGenre.Text.Trim()),
-                    new SqlParameter("@Movie_Release_Date", releaseDate),
-                    new SqlParameter("@Movie_Id", movieId)
+                    new OracleParameter(":Movie_Title", txtMovieTitle.Text.Trim()),
+                    new OracleParameter(":Movie_Duration", duration),
+                    new OracleParameter(":Movie_Language", txtLanguage.Text.Trim()),
+                    new OracleParameter(":Movie_Genre", txtGenre.Text.Trim()),
+                    new OracleParameter(":Movie_Release_Date", releaseDate),
+                    new OracleParameter(":Movie_Id", movieId)
                 };
 
                 _dataAccess.ExecuteNonQuery(sql, parameters);
@@ -118,8 +118,8 @@ namespace CinemaTicketSystem
                     return;
                 }
 
-                const string sql = "DELETE FROM Movie WHERE Movie_Id = @Movie_Id";
-                _dataAccess.ExecuteNonQuery(sql, new[] { new SqlParameter("@Movie_Id", movieId) });
+                const string sql = "DELETE FROM Movie WHERE Movie_Id = :Movie_Id";
+                _dataAccess.ExecuteNonQuery(sql, new[] { new OracleParameter(":Movie_Id", movieId) });
                 lblStatus.Text = "Movie record deleted.";
 
                 lblStatus.CssClass = "status";
